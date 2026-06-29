@@ -1,5 +1,6 @@
 import type { IProbe, ProbeContext, Signal, Verdict } from "../types.js";
 import { makeEvidence } from "../types.js";
+import { transportVerdict } from "./_transport.js";
 
 export const llmsTxtProbe: IProbe = {
   id: "llms-txt",
@@ -9,9 +10,9 @@ export const llmsTxtProbe: IProbe = {
   async run(ctx: ProbeContext) {
     const url = `${ctx.origin}/llms.txt`;
     const o = await ctx.fetch(url, "text/plain");
-    const ok2xx = o.httpStatus >= 200 && o.httpStatus < 300;
+    const tv = transportVerdict(o);
     let verdict: Verdict;
-    if (!o.contentTypeMatch || !ok2xx) verdict = "unverified";
+    if (tv !== "ok") verdict = tv;
     // Large llms.txt (Stripe 93KB, n8n 268KB) trips the 64 KiB cap → body is
     // truncated/null, but a 2xx + text/plain match already proves PRESENCE.
     else if (o.oversize) verdict = "detected";

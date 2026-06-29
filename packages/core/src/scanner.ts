@@ -3,8 +3,16 @@ import type { FetchFn, IProbe, ProbeContext, Signal } from "./types.js";
 import { llmsTxtProbe } from "./probes/llmsTxt.js";
 import { aiBotPolicyProbe } from "./probes/aiBotPolicy.js";
 import { mcpManifestProbe } from "./probes/mcpManifest.js";
+import { openapiProbe } from "./probes/openapi.js";
+import { oauthProbe } from "./probes/oauth.js";
 
-export const DEFAULT_PROBES: IProbe[] = [llmsTxtProbe, aiBotPolicyProbe, mcpManifestProbe];
+export const DEFAULT_PROBES: IProbe[] = [
+  llmsTxtProbe,
+  aiBotPolicyProbe,
+  openapiProbe,
+  oauthProbe,
+  mcpManifestProbe,
+];
 
 export interface ScanResult {
   target: string;

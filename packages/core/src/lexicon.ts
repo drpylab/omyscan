@@ -32,20 +32,42 @@ const PHRASE: Record<string, (s: Signal) => string> = {
       : s.verdict === "unverified"
         ? "manifest path unverified (soft-404)"
         : "no agent manifest",
-  oauth: (s) => (s.verdict === "detected" ? "OAuth discovery surface detected" : "no OAuth discovery"),
-  openapi: (s) => (s.verdict === "detected" ? "OpenAPI surface detected" : "no OpenAPI at root"),
+  oauth: (s) =>
+    s.verdict === "detected"
+      ? "auth boundary metadata detected"
+      : s.verdict === "unverified"
+        ? "OAuth discovery unverified"
+        : "no OAuth discovery",
+  openapi: (s) =>
+    s.verdict === "detected"
+      ? "OpenAPI surface detected"
+      : s.verdict === "unverified"
+        ? "OpenAPI unverified"
+        : "no OpenAPI surface",
 };
 
+function actionDisplay(verdict: string): string {
+  return verdict === "detected" ? "possible" : verdict === "unverified" ? "unverified" : "not detected";
+}
+
 export function formatReport(r: ScanResult): string {
-  const lines = [`AIscanner — Agent Surface Map for ${r.target}`, ""];
+  const lines = [`omyscan — Agent Surface Map for ${r.target}`, "", "Agent-facing signals:"];
   for (const s of r.signals) {
-    // suppress per-path not-detected noise for the multi-path manifest probe
-    if (s.verdict === "not-detected" && s.category === "mcp-manifest") continue;
+    if (s.category === "action-surface") continue;
     const phrase = PHRASE[s.category]?.(s) ?? s.category;
     lines.push(
-      `• [${s.verdict}] ${phrase}  — ${s.evidence.url} (${s.evidence.httpStatus}, ${s.evidence.contentTypeActual ?? "?"})`,
+      `  • [${s.verdict}] ${phrase}  — ${s.evidence.url} (${s.evidence.httpStatus}, ${s.evidence.contentTypeActual ?? "?"})`,
     );
   }
+
+  const actions = r.signals.filter((s) => s.category === "action-surface");
+  if (actions.length > 0) {
+    lines.push("", "Action surface:");
+    for (const s of actions) {
+      lines.push(`  • ${s.label}: ${actionDisplay(s.verdict)}`);
+    }
+  }
+
   const out = lines.join("\n");
   assertLexicon(out);
   return out;

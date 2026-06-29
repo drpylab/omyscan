@@ -1,5 +1,6 @@
 import type { IProbe, ProbeContext, Signal, Verdict } from "../types.js";
 import { makeEvidence } from "../types.js";
+import { transportVerdict } from "./_transport.js";
 
 export const AI_BOTS = [
   "GPTBot", "ChatGPT-User", "OAI-SearchBot", "ClaudeBot", "anthropic-ai",
@@ -15,11 +16,15 @@ export const aiBotPolicyProbe: IProbe = {
   async run(ctx: ProbeContext) {
     const url = `${ctx.origin}/robots.txt`;
     const o = await ctx.fetch(url, "text/plain");
+    const tv = transportVerdict(o);
     let verdict: Verdict;
-    if (!o.contentTypeMatch || o.body == null) {
+    if (tv === "unverified" || (tv === "ok" && o.body == null)) {
       verdict = "unverified";
+    } else if (tv === "not-detected") {
+      // no robots.txt at all → no AI policy declared → the GAP
+      verdict = "not-detected";
     } else {
-      const low = o.body.toLowerCase();
+      const low = o.body!.toLowerCase();
       verdict = AI_BOTS.some((b) => low.includes(b.toLowerCase())) ? "detected" : "not-detected";
     }
     const sig: Signal = {

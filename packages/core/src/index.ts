@@ -5,3 +5,6 @@ export * from "./lexicon.js";
 export { llmsTxtProbe } from "./probes/llmsTxt.js";
 export { aiBotPolicyProbe, AI_BOTS } from "./probes/aiBotPolicy.js";
 export { mcpManifestProbe } from "./probes/mcpManifest.js";
+export { openapiProbe } from "./probes/openapi.js";
+export { oauthProbe } from "./probes/oauth.js";
+export { classifyAction } from "./actions.js";

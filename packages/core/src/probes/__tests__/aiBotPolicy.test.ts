@@ -26,10 +26,22 @@ test("detected when GPTBot directive present", async () => {
   expect(r.signals[0]!.verdict).toBe("detected");
 });
 
-test("unverified when robots.txt not fetchable", async () => {
+test("not-detected (gap) when robots.txt is genuinely absent (404)", async () => {
   const ctx: ProbeContext = {
     origin: "https://x", baseUrl: "https://x",
-    fetch: async () => out(null, false),
+    fetch: async () => out(null, false), // httpStatus 404
+  };
+  const r = await aiBotPolicyProbe.run(ctx);
+  expect(r.signals[0]!.verdict).toBe("not-detected");
+});
+
+test("unverified on soft-404 (200 + wrong content-type)", async () => {
+  const ctx: ProbeContext = {
+    origin: "https://x", baseUrl: "https://x",
+    fetch: async () => ({
+      url: "u", finalUrl: "u", httpStatus: 200, redirectCount: 0,
+      contentTypeActual: "text/html", contentTypeMatch: false, bytes: 1000, body: null, oversize: false,
+    }),
   };
   const r = await aiBotPolicyProbe.run(ctx);
   expect(r.signals[0]!.verdict).toBe("unverified");

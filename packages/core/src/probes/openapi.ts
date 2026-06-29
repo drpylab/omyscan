@@ -2,6 +2,7 @@ import { parse as parseYaml } from "yaml";
 import type { ActionClass, Evidence, IProbe, ProbeContext, Signal, Verdict } from "../types.js";
 import { makeEvidence } from "../types.js";
 import { classifyAction } from "../actions.js";
+import { transportVerdict } from "./_transport.js";
 
 const PATHS = [
   "/openapi.json", "/openapi.yaml", "/swagger.json", "/swagger.yaml",
@@ -51,7 +52,6 @@ export const openapiProbe: IProbe = {
       const url = `${ctx.origin}${p}`;
       const exp = expectedType(p);
       const o = await ctx.fetch(url, exp);
-      const ok2xx = o.httpStatus >= 200 && o.httpStatus < 300;
       const ev = makeEvidence({
         probeId: this.id, url, method: "GET", httpStatus: o.httpStatus, finalUrl: o.finalUrl,
         redirectCount: o.redirectCount, contentTypeExpected: exp, contentTypeActual: o.contentTypeActual,
@@ -60,9 +60,10 @@ export const openapiProbe: IProbe = {
       });
       firstEvidence ??= ev;
 
+      const tv = transportVerdict(o);
       let verdict: Verdict;
-      if (!o.contentTypeMatch || !ok2xx) {
-        verdict = "unverified";
+      if (tv !== "ok") {
+        verdict = tv;
       } else if (o.oversize) {
         verdict = "detected"; // presence only, not parsed
       } else if (o.body == null) {

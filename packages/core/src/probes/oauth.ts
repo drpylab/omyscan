@@ -1,5 +1,6 @@
 import type { Evidence, IProbe, ProbeContext, Signal, Verdict } from "../types.js";
 import { makeEvidence } from "../types.js";
+import { transportVerdict } from "./_transport.js";
 
 const PATHS = [
   "/.well-known/oauth-authorization-server",
@@ -25,7 +26,6 @@ export const oauthProbe: IProbe = {
     for (const p of PATHS) {
       const url = `${ctx.origin}${p}`;
       const o = await ctx.fetch(url, "application/json");
-      const ok2xx = o.httpStatus >= 200 && o.httpStatus < 300;
       const ev = makeEvidence({
         probeId: this.id, url, method: "GET", httpStatus: o.httpStatus, finalUrl: o.finalUrl,
         redirectCount: o.redirectCount, contentTypeExpected: "application/json",
@@ -34,9 +34,10 @@ export const oauthProbe: IProbe = {
       });
       firstEvidence ??= ev;
 
+      const tv = transportVerdict(o);
       let verdict: Verdict;
-      if (!o.contentTypeMatch || !ok2xx || o.body == null) {
-        verdict = "unverified";
+      if (tv !== "ok" || o.body == null) {
+        verdict = tv === "ok" ? "unverified" : tv;
       } else {
         const meta = tryParse(o.body);
         if (meta == null) verdict = "unverified";
