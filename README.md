@@ -68,6 +68,23 @@ omyscan is **passive**. It enforces, on every request:
 - **max response size 64 KiB**, **5 s timeout**, **≤3 redirects**
 - **allowlisted paths only** — no brute force, no aggressive enumeration
 
+omyscan performs passive checks only. It does not fuzz, exploit, brute-force, bypass
+authentication, or claim that a website is vulnerable. Findings are exposure signals
+intended for review.
+
+## Hosted scanning safety
+
+The hosted API (`POST /api/scan`) adds an **SSRF guard**: hosted scanning is limited to
+public web targets. Internal, private, reserved, link-local and cloud-metadata
+addresses are blocked — for the initial URL **and every redirect target**. Only
+`http`/`https` schemes are allowed; userinfo (`user:pass@`) is rejected. Requests are
+rate-limited per IP. Users cannot supply custom paths, headers, cookies or auth.
+
+```bash
+# run the hosted demo (API + one-screen web UI)
+npx tsx apps/api/src/server.ts          # → http://localhost:8787
+```
+
 ## Limitations
 
 - Passive: confirms *presence* of a surface, not its exploitability or runtime behavior.
@@ -77,8 +94,9 @@ omyscan is **passive**. It enforces, on every request:
 ## Roadmap
 
 - v0.1.0-alpha — llms.txt, AI bot policy, MCP manifest, CLI
-- **v0.2.0-alpha — OpenAPI + OAuth discovery + action classification + knowledge-base**
-- next — hosted scan, risk-story interpretation (paid Extended report)
+- v0.2.0-alpha — OpenAPI + OAuth discovery + action classification + knowledge-base
+- **v0.3.0-alpha — hosted web/API + SSRF guard + free/paid preview model**
+- next — $5 Extended report payment, risk-story interpretation
 
 ## License
 
