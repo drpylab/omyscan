@@ -1,9 +1,9 @@
 export interface AnalyticsEvent {
   event: string;
-  target_host?: string;
-  total_findings?: number;
-  visible_findings?: number;
-  locked_findings?: number;
+  target_host?: string | undefined;
+  total_findings?: number | undefined;
+  visible_findings?: number | undefined;
+  locked_findings?: number | undefined;
   timestamp: string;
 }
 

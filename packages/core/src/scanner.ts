@@ -5,13 +5,17 @@ import { aiBotPolicyProbe } from "./probes/aiBotPolicy.js";
 import { mcpManifestProbe } from "./probes/mcpManifest.js";
 import { openapiProbe } from "./probes/openapi.js";
 import { oauthProbe } from "./probes/oauth.js";
+import { contentExtraProbe } from "./probes/contentExtra.js";
+import { docsAreaProbe } from "./probes/docsArea.js";
 
 export const DEFAULT_PROBES: IProbe[] = [
   llmsTxtProbe,
+  contentExtraProbe,
   aiBotPolicyProbe,
   openapiProbe,
   oauthProbe,
   mcpManifestProbe,
+  docsAreaProbe,
 ];
 
 export interface ScanResult {

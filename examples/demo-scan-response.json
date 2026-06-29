@@ -1,0 +1,314 @@
+{
+    "target": "https://demo.omyscan.dev",
+    "status": "completed",
+    "is_demo": true,
+    "low_surface": false,
+    "summary": {
+        "total_findings": 32,
+        "visible_findings": 10,
+        "locked_findings": 22,
+        "agent_surface": "detected",
+        "action_surface": "possible",
+        "governance_gap": "detected"
+    },
+    "category_counts": {
+        "agent_facing_signals": 10,
+        "action_surface": 9,
+        "governance_gaps": 5,
+        "auth_api_metadata": 8,
+        "policy_signals": 0
+    },
+    "visible_findings": [
+        {
+            "id": "openapi_surface_detected",
+            "title": "OpenAPI surface detected",
+            "category": "agent_facing_signal",
+            "status": "detected",
+            "claim_type": "exposure_signal",
+            "confidence": "high",
+            "free_text": "Public machine-readable API documentation was detected.",
+            "source_url": "https://demo.omyscan.dev/openapi.json",
+            "evidence": {
+                "probeId": "demo",
+                "url": "https://demo.omyscan.dev/openapi.json",
+                "method": "GET",
+                "httpStatus": 200,
+                "finalUrl": "https://demo.omyscan.dev/openapi.json",
+                "redirectCount": 0,
+                "contentTypeExpected": "application/json",
+                "contentTypeActual": "application/json",
+                "contentTypeMatch": true,
+                "bytes": 1024,
+                "fetchedAt": "2026-01-01T00:00:00.000Z"
+            },
+            "free_visible": true,
+            "paid_interpretation": "Available in Extended Report.",
+            "paid_fix": "Available in Extended Report."
+        },
+        {
+            "id": "ai_bot_policy_gap",
+            "title": "AI bot policy gap",
+            "category": "governance_gap",
+            "status": "gap",
+            "claim_type": "governance_gap",
+            "confidence": "high",
+            "free_text": "No AI-specific crawler policy was found in robots.txt.",
+            "source_url": "https://demo.omyscan.dev/robots.txt",
+            "evidence": {
+                "probeId": "demo",
+                "url": "https://demo.omyscan.dev/robots.txt",
+                "method": "GET",
+                "httpStatus": 200,
+                "finalUrl": "https://demo.omyscan.dev/robots.txt",
+                "redirectCount": 0,
+                "contentTypeExpected": "text/plain",
+                "contentTypeActual": "text/plain",
+                "contentTypeMatch": true,
+                "bytes": 1024,
+                "fetchedAt": "2026-01-01T00:00:00.000Z"
+            },
+            "free_visible": true,
+            "paid_interpretation": "Available in Extended Report.",
+            "paid_fix": "Available in Extended Report."
+        },
+        {
+            "id": "action_write",
+            "title": "Write-like operations possible",
+            "category": "action_surface",
+            "status": "possible",
+            "claim_type": "action_surface",
+            "confidence": "medium",
+            "source_url": "https://demo.omyscan.dev/openapi.json",
+            "evidence": {
+                "probeId": "demo",
+                "url": "https://demo.omyscan.dev/openapi.json",
+                "method": "GET",
+                "httpStatus": 200,
+                "finalUrl": "https://demo.omyscan.dev/openapi.json",
+                "redirectCount": 0,
+                "contentTypeExpected": "application/json",
+                "contentTypeActual": "application/json",
+                "contentTypeMatch": true,
+                "bytes": 1024,
+                "fetchedAt": "2026-01-01T00:00:00.000Z"
+            },
+            "free_visible": true,
+            "paid_interpretation": "Available in Extended Report.",
+            "paid_fix": "Available in Extended Report."
+        },
+        {
+            "id": "action_upload",
+            "title": "Upload-like operations possible",
+            "category": "action_surface",
+            "status": "possible",
+            "claim_type": "action_surface",
+            "confidence": "medium",
+            "source_url": "https://demo.omyscan.dev/openapi.json",
+            "evidence": {
+                "probeId": "demo",
+                "url": "https://demo.omyscan.dev/openapi.json",
+                "method": "GET",
+                "httpStatus": 200,
+                "finalUrl": "https://demo.omyscan.dev/openapi.json",
+                "redirectCount": 0,
+                "contentTypeExpected": "application/json",
+                "contentTypeActual": "application/json",
+                "contentTypeMatch": true,
+                "bytes": 1024,
+                "fetchedAt": "2026-01-01T00:00:00.000Z"
+            },
+            "free_visible": true,
+            "paid_interpretation": "Available in Extended Report.",
+            "paid_fix": "Available in Extended Report."
+        },
+        {
+            "id": "action_delete",
+            "title": "Delete-like operations possible",
+            "category": "action_surface",
+            "status": "possible",
+            "claim_type": "action_surface",
+            "confidence": "medium",
+            "source_url": "https://demo.omyscan.dev/openapi.json",
+            "evidence": {
+                "probeId": "demo",
+                "url": "https://demo.omyscan.dev/openapi.json",
+                "method": "GET",
+                "httpStatus": 200,
+                "finalUrl": "https://demo.omyscan.dev/openapi.json",
+                "redirectCount": 0,
+                "contentTypeExpected": "application/json",
+                "contentTypeActual": "application/json",
+                "contentTypeMatch": true,
+                "bytes": 1024,
+                "fetchedAt": "2026-01-01T00:00:00.000Z"
+            },
+            "free_visible": true,
+            "paid_interpretation": "Available in Extended Report.",
+            "paid_fix": "Available in Extended Report."
+        },
+        {
+            "id": "action_payment",
+            "title": "Payment-like operations possible",
+            "category": "action_surface",
+            "status": "possible",
+            "claim_type": "action_surface",
+            "confidence": "medium",
+            "source_url": "https://demo.omyscan.dev/openapi.json",
+            "evidence": {
+                "probeId": "demo",
+                "url": "https://demo.omyscan.dev/openapi.json",
+                "method": "GET",
+                "httpStatus": 200,
+                "finalUrl": "https://demo.omyscan.dev/openapi.json",
+                "redirectCount": 0,
+                "contentTypeExpected": "application/json",
+                "contentTypeActual": "application/json",
+                "contentTypeMatch": true,
+                "bytes": 1024,
+                "fetchedAt": "2026-01-01T00:00:00.000Z"
+            },
+            "free_visible": true,
+            "paid_interpretation": "Available in Extended Report.",
+            "paid_fix": "Available in Extended Report."
+        },
+        {
+            "id": "action_send_message",
+            "title": "Message-sending operations possible",
+            "category": "action_surface",
+            "status": "possible",
+            "claim_type": "action_surface",
+            "confidence": "medium",
+            "source_url": "https://demo.omyscan.dev/openapi.json",
+            "evidence": {
+                "probeId": "demo",
+                "url": "https://demo.omyscan.dev/openapi.json",
+                "method": "GET",
+                "httpStatus": 200,
+                "finalUrl": "https://demo.omyscan.dev/openapi.json",
+                "redirectCount": 0,
+                "contentTypeExpected": "application/json",
+                "contentTypeActual": "application/json",
+                "contentTypeMatch": true,
+                "bytes": 1024,
+                "fetchedAt": "2026-01-01T00:00:00.000Z"
+            },
+            "free_visible": true,
+            "paid_interpretation": "Available in Extended Report.",
+            "paid_fix": "Available in Extended Report."
+        },
+        {
+            "id": "action_auth_token",
+            "title": "Auth/token operations possible",
+            "category": "action_surface",
+            "status": "possible",
+            "claim_type": "action_surface",
+            "confidence": "medium",
+            "source_url": "https://demo.omyscan.dev/openapi.json",
+            "evidence": {
+                "probeId": "demo",
+                "url": "https://demo.omyscan.dev/openapi.json",
+                "method": "GET",
+                "httpStatus": 200,
+                "finalUrl": "https://demo.omyscan.dev/openapi.json",
+                "redirectCount": 0,
+                "contentTypeExpected": "application/json",
+                "contentTypeActual": "application/json",
+                "contentTypeMatch": true,
+                "bytes": 1024,
+                "fetchedAt": "2026-01-01T00:00:00.000Z"
+            },
+            "free_visible": true,
+            "paid_interpretation": "Available in Extended Report.",
+            "paid_fix": "Available in Extended Report."
+        },
+        {
+            "id": "oauth_discovery_detected",
+            "title": "Auth boundary metadata detected",
+            "category": "auth_api_metadata",
+            "status": "detected",
+            "claim_type": "auth_metadata",
+            "confidence": "high",
+            "free_text": "Machine-readable auth boundary metadata was detected.",
+            "source_url": "https://demo.omyscan.dev/.well-known/openid-configuration",
+            "evidence": {
+                "probeId": "demo",
+                "url": "https://demo.omyscan.dev/.well-known/openid-configuration",
+                "method": "GET",
+                "httpStatus": 200,
+                "finalUrl": "https://demo.omyscan.dev/.well-known/openid-configuration",
+                "redirectCount": 0,
+                "contentTypeExpected": "application/json",
+                "contentTypeActual": "application/json",
+                "contentTypeMatch": true,
+                "bytes": 1024,
+                "fetchedAt": "2026-01-01T00:00:00.000Z"
+            },
+            "free_visible": true,
+            "paid_interpretation": "Available in Extended Report.",
+            "paid_fix": "Available in Extended Report."
+        },
+        {
+            "id": "mcp_manifest_detected",
+            "title": "MCP manifest detected",
+            "category": "agent_facing_signal",
+            "status": "detected",
+            "claim_type": "exposure_signal",
+            "confidence": "high",
+            "free_text": "A machine-readable agent/MCP manifest was detected.",
+            "source_url": "https://demo.omyscan.dev/.well-known/mcp.json",
+            "evidence": {
+                "probeId": "demo",
+                "url": "https://demo.omyscan.dev/.well-known/mcp.json",
+                "method": "GET",
+                "httpStatus": 200,
+                "finalUrl": "https://demo.omyscan.dev/.well-known/mcp.json",
+                "redirectCount": 0,
+                "contentTypeExpected": "application/json",
+                "contentTypeActual": "application/json",
+                "contentTypeMatch": true,
+                "bytes": 1024,
+                "fetchedAt": "2026-01-01T00:00:00.000Z"
+            },
+            "free_visible": true,
+            "paid_interpretation": "Available in Extended Report.",
+            "paid_fix": "Available in Extended Report."
+        }
+    ],
+    "risk_stories": [
+        {
+            "story_id": "agent_discovers_write_actions",
+            "title": "Agent-discoverable write actions"
+        },
+        {
+            "story_id": "agent_ingestion_surface",
+            "title": "Agent-discoverable ingestion surface"
+        },
+        {
+            "story_id": "auth_api_boundaries",
+            "title": "Discoverable auth and API boundaries"
+        },
+        {
+            "story_id": "high_doc_surface",
+            "title": "High agent-readable documentation surface"
+        },
+        {
+            "story_id": "machine_readable_tool_surface",
+            "title": "Machine-readable tool surface exposed to agents"
+        }
+    ],
+    "locked_preview": {
+        "count": 22,
+        "categories": [
+            "agent_facing_signal",
+            "action_surface",
+            "governance_gap",
+            "auth_api_metadata"
+        ],
+        "message": "22 additional findings and fix recommendations are available in Extended Report."
+    },
+    "cta": {
+        "label": "Show all findings and how to fix \u2014 $5",
+        "enabled": false
+    },
+    "safety_notice": "Passive scan only. GET/HEAD requests. No brute force. No auth bypass."
+}

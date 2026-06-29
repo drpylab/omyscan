@@ -42,6 +42,7 @@ export const mcpManifestProbe: IProbe = {
       }
     }
     const sig: Signal = { category: "mcp-manifest", verdict: best, evidence: bestEvidence ?? firstEvidence! };
+    if (best === "detected") sig.facets = ["tool_metadata", "agent_callable_surface"];
     return { signals: [sig] };
   },
 };

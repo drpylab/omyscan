@@ -1,0 +1,7 @@
+{
+  "story_id": "auth_api_boundaries",
+  "title": "Discoverable auth and API boundaries",
+  "condition": ["oauth_discovery_detected", "openapi_surface_detected"],
+  "claim_type": "exposure_scenario",
+  "text": "Machine-readable auth metadata and API documentation are both discoverable. An agent could map the permission boundary and the available operations together — worth reviewing how the two are governed."
+}

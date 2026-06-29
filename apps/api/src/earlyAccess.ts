@@ -1,53 +1,41 @@
-import { emit, hostOf } from "./analytics.js";
+import type { Storage } from "./storage.js";
 
 export interface EarlyAccessInput {
   email: string;
-  target?: string;
-  total_findings?: number;
-  locked_findings?: number;
+  target?: string | undefined;
+  total_findings?: number | undefined;
+  visible_findings?: number | undefined;
+  locked_findings?: number | undefined;
+  is_demo?: boolean | undefined;
+  ip?: string | undefined;
+  user_agent?: string | undefined;
 }
 
-export interface EarlyAccessRecord {
-  email: string;
-  target_host?: string;
-  total_findings?: number;
-  locked_findings?: number;
-  timestamp: string;
+export interface EarlyAccessDeps {
+  storage: Storage;
 }
-
-export type EarlyAccessStore = (r: EarlyAccessRecord) => void;
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
-/** Default store: JSONL line to stdout (dev). Swap for a real provider later. */
-const defaultStore: EarlyAccessStore = (r) => {
-  process.stdout.write(`[early-access] ${JSON.stringify(r)}\n`);
-};
-
-export interface EarlyAccessDeps {
-  store?: EarlyAccessStore;
-}
-
 export function handleEarlyAccess(
   input: EarlyAccessInput,
-  deps: EarlyAccessDeps = {},
+  deps: EarlyAccessDeps,
 ): { status: number; body: Record<string, unknown> } {
-  if (typeof input.email !== "string" || !EMAIL_RE.test(input.email)) {
+  if (typeof input.email !== "string" || !EMAIL_RE.test(input.email.trim())) {
     return { status: 400, body: { status: "error", message: "A valid email is required." } };
   }
-  const record: EarlyAccessRecord = {
-    email: input.email,
-    target_host: hostOf(input.target ?? ""),
+  const email = input.email.trim().toLowerCase();
+  const common = {
+    target: input.target,
     total_findings: input.total_findings,
+    visible_findings: input.visible_findings,
     locked_findings: input.locked_findings,
-    timestamp: new Date().toISOString(),
+    is_demo: input.is_demo,
+    ip: input.ip,
+    user_agent: input.user_agent,
   };
-  (deps.store ?? defaultStore)(record);
-  // analytics carries NO email — only host + counts.
-  emit("early_access_submitted", {
-    target_host: record.target_host,
-    total_findings: record.total_findings,
-    locked_findings: record.locked_findings,
-  });
+  deps.storage.insertLead({ email, ...common });
+  // analytics carries NO email — only host + counts (hashed ip/ua handled by storage).
+  deps.storage.insertEvent({ event: "early_access_submitted", ...common });
   return { status: 200, body: { status: "ok" } };
 }

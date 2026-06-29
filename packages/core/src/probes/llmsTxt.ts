@@ -22,6 +22,7 @@ export const llmsTxtProbe: IProbe = {
     const sig: Signal = {
       category: "discoverability",
       verdict,
+      ...(verdict === "detected" ? { facets: ["ai_readable_entrypoint"] } : {}),
       evidence: makeEvidence({
         probeId: this.id, url, method: "GET", httpStatus: o.httpStatus,
         finalUrl: o.finalUrl, redirectCount: o.redirectCount, contentTypeExpected: "text/plain",

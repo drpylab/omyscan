@@ -47,6 +47,8 @@ export const openapiProbe: IProbe = {
     let bestEvidence: Evidence | null = null;
     let firstEvidence: Evidence | null = null;
     const actions = new Set<ActionClass>();
+    let pathCount = 0;
+    let parsed = false;
 
     for (const p of PATHS) {
       const url = `${ctx.origin}${p}`;
@@ -74,6 +76,9 @@ export const openapiProbe: IProbe = {
           verdict = "unverified";
         } else {
           verdict = "detected";
+          parsed = true;
+          const paths = (spec as { paths?: Record<string, unknown> })?.paths;
+          if (paths != null && typeof paths === "object") pathCount += Object.keys(paths).length;
           for (const a of extractActions(spec)) actions.add(a);
         }
       }
@@ -84,7 +89,15 @@ export const openapiProbe: IProbe = {
     }
 
     const evidence = bestEvidence ?? firstEvidence!;
-    const signals: Signal[] = [{ category: "openapi", verdict: best, evidence }];
+    const facets: string[] = [];
+    if (best === "detected") {
+      facets.push("openapi_document", "machine_readable_api");
+      if (parsed && pathCount > 0) facets.push("api_paths");
+      if (parsed && actions.size > 0) facets.push("api_operations");
+    }
+    const openapiSignal: Signal = { category: "openapi", verdict: best, evidence };
+    if (facets.length > 0) openapiSignal.facets = facets;
+    const signals: Signal[] = [openapiSignal];
     for (const a of ALL_ACTIONS) {
       signals.push({
         category: "action-surface",

@@ -101,7 +101,8 @@ Monorepo: `packages/core` (scanner + probes), `packages/safety` (SSRF guard),
 - v0.1.0-alpha — llms.txt, AI bot policy, MCP manifest, CLI
 - v0.2.0-alpha — OpenAPI + OAuth discovery + action classification + knowledge-base
 - v0.3.0-alpha — hosted web/API + SSRF guard + free/paid preview model
-- **v0.3.1-alpha — launch-readiness polish (early-access modal, analytics, docs)**
+- v0.3.1-alpha — launch-readiness polish (early-access modal, analytics, docs)
+- **v0.3.3-alpha — demo scan + expanded atomic surface findings + risk stories**
 - next — $5 Extended report payment, risk-story interpretation
 
 ## License

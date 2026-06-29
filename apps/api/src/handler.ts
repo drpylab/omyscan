@@ -1,12 +1,10 @@
-import { scan, createFetcher, SsrfBlockedError, assertLexicon, type ScanResult } from "@omyscan/core";
+import { scan, createFetcher, SsrfBlockedError, type ScanResult } from "@omyscan/core";
 import { guardUrl, type GuardResult, type Resolver } from "@omyscan/safety";
-import { splitFindings, applyPreviewPolicy, buildSummary, categoryCounts } from "@omyscan/preview";
 import { createRateLimiter, type RateLimiter } from "./rateLimit.js";
 import { emit, hostOf } from "./analytics.js";
+import { buildScanResponse } from "./response.js";
 
-const SAFETY_NOTICE = "Passive scan only. GET/HEAD requests. No brute force. No auth bypass.";
 const BLOCK_MSG = "This target is not allowed for hosted scanning.";
-const MAX_VISIBLE = 10;
 
 export interface ScanInput {
   url: string;
@@ -68,18 +66,8 @@ export async function handleScan(input: ScanInput, deps: HandlerDeps = {}): Prom
     return { status: 502, body: { status: "error", error: "scan_failed", message: "The scan could not be completed." } };
   }
 
-  const findings = splitFindings(result);
-  const split = applyPreviewPolicy(findings, MAX_VISIBLE);
-  const summary = buildSummary(split);
-  const counts = categoryCounts(split.all);
-  const lockedCategories = [...new Set(split.locked.map((f) => f.category))];
-  const lockedMessage = `${split.locked.length} additional findings and fix recommendations are available in Extended Report.`;
-  const ctaLabel = "Unlock all findings + fix plan — $5";
-
-  // Lexicon guard applies to OUR generated copy only (never to site-derived evidence snippets).
-  const ourCopy = [ctaLabel, lockedMessage, SAFETY_NOTICE, ...split.visible.map((f) => `${f.title} ${f.free_text ?? ""}`)].join(" ");
-  assertLexicon(ourCopy);
-
+  const body = buildScanResponse(result);
+  const summary = body.summary as { total_findings: number; visible_findings: number; locked_findings: number };
   emit("scan_completed", {
     target_host: host,
     total_findings: summary.total_findings,
@@ -87,17 +75,5 @@ export async function handleScan(input: ScanInput, deps: HandlerDeps = {}): Prom
     locked_findings: summary.locked_findings,
   });
 
-  return {
-    status: 200,
-    body: {
-      target: result.target,
-      status: "completed",
-      summary,
-      category_counts: counts,
-      visible_findings: split.visible,
-      locked_preview: { count: split.locked.length, categories: lockedCategories, message: lockedMessage },
-      cta: { label: ctaLabel, enabled: false },
-      safety_notice: SAFETY_NOTICE,
-    },
-  };
+  return { status: 200, body };
 }

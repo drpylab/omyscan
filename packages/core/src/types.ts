@@ -6,7 +6,9 @@ export type ProbeCategory =
   | "mcp-manifest"
   | "oauth"
   | "openapi"
-  | "action-surface";
+  | "action-surface"
+  | "content-extra"
+  | "docs-area";
 
 export interface Evidence {
   probeId: string;
@@ -29,6 +31,7 @@ export interface Signal {
   evidence: Evidence;
   interpretationKey?: string;
   label?: string; // e.g. action class name for "action-surface" signals
+  facets?: string[]; // honest sub-aspects of a detection (e.g. oauth: ["issuer","token_endpoint"])
 }
 
 export type ActionClass =

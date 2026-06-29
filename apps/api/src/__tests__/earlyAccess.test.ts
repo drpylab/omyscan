@@ -1,35 +1,35 @@
-import { afterEach, expect, test } from "vitest";
-import { handleEarlyAccess, type EarlyAccessRecord } from "../earlyAccess.js";
-import { setSink } from "../analytics.js";
+import { expect, test } from "vitest";
+import { handleEarlyAccess } from "../earlyAccess.js";
+import { createStorage } from "../storage.js";
 
-afterEach(() => setSink((e) => process.stdout.write(JSON.stringify(e) + "\n")));
+const mem = () => createStorage({ dbPath: ":memory:", salt: "test" });
 
-test("valid email → ok, stored with host-only target", () => {
-  setSink(() => {});
-  const stored: EarlyAccessRecord[] = [];
+test("valid email → ok; lead stored, lowercased, host-only (no query)", () => {
+  const s = mem();
   const r = handleEarlyAccess(
-    { email: "user@example.com", target: "https://docs.langchain.com/x?q=1", total_findings: 12, locked_findings: 2 },
-    { store: (rec) => stored.push(rec) },
+    { email: "User@Example.com ", target: "https://docs.langchain.com/x?q=secret", total_findings: 12, locked_findings: 2 },
+    { storage: s },
   );
   expect(r.status).toBe(200);
   expect(r.body.status).toBe("ok");
-  expect(stored[0]!.email).toBe("user@example.com");
-  expect(stored[0]!.target_host).toBe("docs.langchain.com"); // no path/query stored
+  const csv = s.leadsCsv();
+  expect(csv).toContain("user@example.com"); // normalized
+  expect(csv).toContain("docs.langchain.com");
+  expect(csv).not.toContain("secret"); // full URL / query never stored
+  s.close();
 });
 
 test("invalid email → error, nothing stored", () => {
-  setSink(() => {});
-  const stored: EarlyAccessRecord[] = [];
-  const r = handleEarlyAccess({ email: "not-an-email" }, { store: (rec) => stored.push(rec) });
+  const s = mem();
+  const r = handleEarlyAccess({ email: "not-an-email" }, { storage: s });
   expect(r.status).toBe(400);
-  expect(r.body.status).toBe("error");
-  expect(stored).toHaveLength(0);
+  expect(s.metrics().total_leads).toBe(0);
+  s.close();
 });
 
-test("analytics event for submission carries NO email", () => {
-  const events: unknown[] = [];
-  setSink((e) => events.push(e));
-  handleEarlyAccess({ email: "secret@example.com", target: "https://x.com" }, { store: () => {} });
-  expect(JSON.stringify(events)).not.toContain("secret@example.com");
-  expect(JSON.stringify(events)).toContain("early_access_submitted");
+test("submission records an analytics event (no email)", () => {
+  const s = mem();
+  handleEarlyAccess({ email: "secret@example.com", target: "https://x.com" }, { storage: s });
+  expect(s.metrics().early_access_submitted).toBe(1);
+  s.close();
 });

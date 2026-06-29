@@ -1,0 +1,7 @@
+{
+  "story_id": "high_doc_surface",
+  "title": "High agent-readable documentation surface",
+  "condition": ["llms_txt_detected"],
+  "claim_type": "exposure_scenario",
+  "text": "An AI-readable documentation map was found. Agents can use it to navigate your content quickly — review which pages it exposes and whether any embed instructions intended for agents."
+}

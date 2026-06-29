@@ -1,6 +1,12 @@
 node_modules
 dist
 *.tsbuildinfo
+.DS_Store
+data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+.env
 
 # TypeScript build outputs
 *.js

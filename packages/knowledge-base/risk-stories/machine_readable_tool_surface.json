@@ -1,0 +1,7 @@
+{
+  "story_id": "machine_readable_tool_surface",
+  "title": "Machine-readable tool surface exposed to agents",
+  "condition": ["mcp_manifest_detected"],
+  "claim_type": "exposure_scenario",
+  "text": "A machine-readable agent/MCP manifest advertises callable tools to agent runtimes. Review which tools are listed and whether they should be reachable by autonomous agents."
+}

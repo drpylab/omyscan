@@ -22,6 +22,7 @@ export const oauthProbe: IProbe = {
     let best: Verdict = "not-detected";
     let bestEvidence: Evidence | null = null;
     let firstEvidence: Evidence | null = null;
+    let bestFacets: string[] = [];
 
     for (const p of PATHS) {
       const url = `${ctx.origin}${p}`;
@@ -36,28 +37,34 @@ export const oauthProbe: IProbe = {
 
       const tv = transportVerdict(o);
       let verdict: Verdict;
+      let facets: string[] = [];
       if (tv !== "ok" || o.body == null) {
         verdict = tv === "ok" ? "unverified" : tv;
       } else {
         const meta = tryParse(o.body);
         if (meta == null) verdict = "unverified";
-        else verdict = hasAnyKey(meta) ? "detected" : "not-detected";
+        else {
+          facets = presentKeys(meta);
+          verdict = facets.length > 0 ? "detected" : "not-detected";
+        }
       }
       if (rank(verdict) > rank(best)) {
         best = verdict;
         bestEvidence = ev;
+        bestFacets = facets;
       }
     }
 
     const sig: Signal = { category: "oauth", verdict: best, evidence: bestEvidence ?? firstEvidence! };
+    if (bestFacets.length > 0) sig.facets = bestFacets;
     return { signals: [sig] };
   },
 };
 
-function hasAnyKey(meta: unknown): boolean {
-  if (meta == null || typeof meta !== "object") return false;
+function presentKeys(meta: unknown): string[] {
+  if (meta == null || typeof meta !== "object") return [];
   const obj = meta as Record<string, unknown>;
-  return META_KEYS.some((k) => k in obj);
+  return META_KEYS.filter((k) => k in obj);
 }
 
 function rank(v: Verdict): number {

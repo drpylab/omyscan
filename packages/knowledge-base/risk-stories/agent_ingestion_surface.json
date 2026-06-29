@@ -1,0 +1,7 @@
+{
+  "story_id": "agent_ingestion_surface",
+  "title": "Agent-discoverable ingestion surface",
+  "condition": ["openapi_surface_detected", "upload_actions_possible"],
+  "claim_type": "exposure_scenario",
+  "text": "Documented upload or import operations may be discoverable by an AI agent. This is an ingestion surface to review before connecting the API to autonomous agent or RAG workflows."
+}
