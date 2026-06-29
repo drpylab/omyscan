@@ -5,13 +5,27 @@ const MAX_BYTES = 65536;
 const TIMEOUT_MS = 5000;
 const MAX_REDIRECTS = 3;
 
+/** Thrown when a redirect target is rejected by an injected SSRF guard. */
+export class SsrfBlockedError extends Error {
+  constructor(public reason: string) {
+    super("blocked_by_ssrf_guard");
+    this.name = "SsrfBlockedError";
+  }
+}
+
+export interface FetcherOptions {
+  /** Validate each redirect target before following it; throw to block. */
+  validateRedirect?: (url: string) => Promise<void>;
+}
+
 /**
  * SafeFetcher — enforces every transport invariant:
  *  GET/HEAD only · content-type pinning · 64 KiB cap · 5s timeout · ≤3 redirects.
- * Redirects are followed manually so finalUrl / redirectCount are exact and we
- * re-apply the size cap on the final body (undici does not expose redirect history).
+ * Redirects are followed manually so finalUrl / redirectCount are exact, we
+ * re-apply the size cap on the final body, and (in hosted mode) every redirect
+ * target is SSRF-validated before being followed.
  */
-export function createFetcher(): FetchFn {
+export function createFetcher(opts: FetcherOptions = {}): FetchFn {
   return async (url, expectedContentType, method = "GET"): Promise<FetchOutcome> => {
     let current = url;
     let redirectCount = 0;
@@ -38,7 +52,9 @@ export function createFetcher(): FetchFn {
 
       if (isRedirect && redirectCount < MAX_REDIRECTS) {
         res.body.destroy();
-        current = new URL(location, current).toString();
+        const next = new URL(location, current).toString();
+        if (opts.validateRedirect) await opts.validateRedirect(next); // throws to block
+        current = next;
         redirectCount += 1;
         continue;
       }

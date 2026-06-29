@@ -1,0 +1,11 @@
+{
+  "name": "@omyscan/api",
+  "version": "0.3.0-alpha.0",
+  "type": "module",
+  "main": "./src/server.ts",
+  "dependencies": {
+    "@omyscan/core": "*",
+    "@omyscan/preview": "*",
+    "@omyscan/safety": "*"
+  }
+}
