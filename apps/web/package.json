@@ -1,0 +1,6 @@
+{
+  "name": "@omyscan/web",
+  "version": "0.3.0-alpha.0",
+  "private": true,
+  "description": "omyscan one-screen hosted demo UI (static, served by @omyscan/api)"
+}

@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>omyscan — Agent Surface Mapper</title>
+<style>
+  :root {
+    --bg: #f7f9fc; --ink: #16203a; --muted: #6b7892; --line: #e6ebf3;
+    --card: #ffffff; --accent: #4f6bff; --accent-soft: #eef1ff;
+    --green: #1f9d72; --green-soft: #e7f6f0; --amber: #b9791d; --amber-soft: #fbf1e0;
+    --gray: #8893a7; --gray-soft: #eef1f6; --violet: #6b5bd2; --violet-soft: #efecfb;
+    --navy: #2a3656; --shadow: 0 1px 2px rgba(20,30,60,.04), 0 8px 24px rgba(20,30,60,.06);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+    color: var(--ink);
+    background: radial-gradient(1200px 600px at 50% -10%, #eef2fb 0%, var(--bg) 60%);
+    min-height: 100vh;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 22px 20px 40px; }
+  header { display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-weight: 700; letter-spacing: -.2px; }
+  .logo b { color: var(--accent); }
+  nav a { color: var(--muted); text-decoration: none; margin-left: 16px; font-size: 13px; }
+  nav a:hover { color: var(--ink); }
+  .hero { text-align: center; padding: 40px 0 18px; }
+  h1 { font-size: 30px; line-height: 1.15; margin: 0 0 12px; letter-spacing: -.5px; }
+  .sub { color: var(--muted); max-width: 620px; margin: 0 auto 10px; }
+  .safety { color: var(--muted); font-size: 12.5px; }
+  form { display: flex; gap: 10px; max-width: 640px; margin: 22px auto 6px; }
+  input[type=url] {
+    flex: 1; padding: 13px 15px; border: 1px solid var(--line); border-radius: 12px;
+    font-size: 15px; background: #fff; color: var(--ink); box-shadow: var(--shadow);
+  }
+  input[type=url]:focus { outline: none; border-color: var(--accent); }
+  button {
+    padding: 13px 20px; border: 0; border-radius: 12px; background: var(--accent);
+    color: #fff; font-weight: 600; font-size: 15px; cursor: pointer; box-shadow: var(--shadow);
+  }
+  button:disabled { opacity: .55; cursor: default; }
+  .status { text-align: center; min-height: 20px; color: var(--muted); font-size: 13px; margin: 4px 0 18px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } form { flex-direction: column; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); }
+  .card h3 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); }
+  .row { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-top: 1px solid var(--line); }
+  .row:first-of-type { border-top: 0; }
+  .row .name { color: var(--navy); }
+  .chip { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+  .c-detected, .c-possible { color: var(--green); background: var(--green-soft); }
+  .c-gap { color: var(--amber); background: var(--amber-soft); }
+  .c-not_detected, .c-not.detected { color: var(--gray); background: var(--gray-soft); }
+  .c-unverified { color: var(--violet); background: var(--violet-soft); }
+  .means { color: var(--navy); font-size: 14px; line-height: 1.55; }
+  .means .tag { color: var(--muted); font-size: 12.5px; margin-top: 8px; }
+  .unlock { background: linear-gradient(180deg, #fff, #fbfcff); border: 1px solid var(--line); }
+  .unlock .count { font-size: 22px; font-weight: 700; }
+  .unlock .meta { color: var(--muted); font-size: 13px; margin: 4px 0 14px; }
+  .unlock button { width: 100%; }
+  .err { color: #9a3b2f; background: #fbeceA; border: 1px solid #f3d6cf; padding: 12px 14px; border-radius: 12px; text-align: center; }
+  footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 28px; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">omy<b>scan</b></div>
+    <nav><a href="https://github.com">GitHub</a><a href="#">CLI</a><a href="#">Docs</a></nav>
+  </header>
+
+  <section class="hero">
+    <h1>See your product through an AI agent's eyes.</h1>
+    <p class="sub">omyscan maps what AI agents can read, discover and attempt to use:
+      llms.txt, AI bot policies, MCP manifests, OpenAPI/OAuth metadata and action surfaces.</p>
+    <p class="safety">Passive scan only · GET/HEAD requests · No brute force · No auth bypass</p>
+    <form id="f">
+      <input id="url" type="url" placeholder="https://your-product.com" required />
+      <button id="go" type="submit">Scan surface</button>
+    </form>
+    <div class="status" id="status"></div>
+  </section>
+
+  <div id="err" class="err hidden"></div>
+
+  <section id="result" class="hidden">
+    <div class="grid">
+      <div class="card"><h3>Agent-facing signals</h3><div id="signals"></div></div>
+      <div class="card"><h3>Action surface</h3><div id="actions"></div></div>
+    </div>
+    <div class="grid" style="margin-top:16px">
+      <div class="card"><h3>What this means</h3><div class="means" id="means"></div></div>
+      <div class="card unlock">
+        <h3>Extended report</h3>
+        <div class="count" id="locktotal"></div>
+        <div class="meta" id="lockmeta"></div>
+        <button id="cta" disabled></button>
+      </div>
+    </div>
+  </section>
+
+  <footer>Open-source · Passive GET/HEAD only · SSRF guarded · No fuzzing · No vulnerability claims</footer>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const chip = (status) => `<span class="chip c-${status}">${status.replace('_',' ')}</span>`;
+
+$("f").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const url = $("url").value.trim();
+  $("err").classList.add("hidden"); $("result").classList.add("hidden");
+  $("go").disabled = true; $("status").textContent = "Scanning surface…";
+  try {
+    const res = await fetch("/api/scan", {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url }),
+    });
+    const d = await res.json();
+    if (d.error === "blocked_by_ssrf_guard") return fail("This target is not allowed for hosted scanning.");
+    if (d.error === "rate_limited") return fail("Too many scan requests. Please try again later.");
+    if (d.status !== "completed") return fail("The scan could not be completed.");
+    render(d);
+  } catch (_) { fail("Network error. Please try again."); }
+  finally { $("go").disabled = false; $("status").textContent = ""; }
+});
+
+function fail(msg) { $("err").textContent = msg; $("err").classList.remove("hidden"); }
+
+function render(d) {
+  const vis = d.visible_findings || [];
+  const sig = vis.filter(f => f.category !== "action_surface");
+  const act = vis.filter(f => f.category === "action_surface");
+  const statusOf = (f) => f.status;
+
+  $("signals").innerHTML = sig.length ? sig.map(f =>
+    `<div class="row"><span class="name">${f.title}</span>${chip(statusOf(f))}</div>`).join("")
+    : `<div class="row"><span class="name">No agent-facing signals in preview</span></div>`;
+
+  $("actions").innerHTML = act.length ? act.map(f =>
+    `<div class="row"><span class="name">${f.title.replace(/-like operations possible$/,'')}</span>${chip(f.status)}</div>`).join("")
+    : `<div class="row"><span class="name">Action surface: ${d.summary.action_surface.replace('_',' ')}</span></div>`;
+
+  const s = d.summary;
+  let means = "";
+  if (s.agent_surface === "detected") means += "Public machine-readable agent-facing surface was detected. ";
+  if (s.action_surface === "possible") means += "AI agents may be able to discover documented actions before they are intentionally exposed to agent workflows. ";
+  if (s.governance_gap === "detected") means += "No AI-specific crawler policy was found. ";
+  if (!means) means = "No notable agent-facing surface detected in this preview. ";
+  $("means").innerHTML = `${means}<div class="tag">This is an exposure signal, not a vulnerability claim.</div>`;
+
+  $("locktotal").textContent = `${s.total_findings} agent-facing signals found`;
+  $("lockmeta").textContent = `${s.visible_findings} shown · ${s.locked_findings} locked`;
+  $("cta").textContent = d.cta.label;
+  $("result").classList.remove("hidden");
+}
+</script>
+</body>
+</html>
