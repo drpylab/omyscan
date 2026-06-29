@@ -1,9 +1,9 @@
 {
-  "name": "@aiscanner/cli",
-  "version": "0.1.0",
+  "name": "omyscan",
+  "version": "0.2.0-alpha.0",
   "type": "module",
-  "bin": { "aiscanner": "./src/main.ts" },
+  "bin": { "omyscan": "./src/main.ts" },
   "dependencies": {
-    "@aiscanner/core": "*"
+    "@omyscan/core": "*"
   }
 }

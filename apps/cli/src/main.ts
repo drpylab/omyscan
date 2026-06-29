@@ -1,4 +1,4 @@
-import { scan, formatReport, type ScanResult, type FetchOutcome } from "@aiscanner/core";
+import { scan, formatReport, type ScanResult, type FetchOutcome } from "@omyscan/core";
 
 const SELFTEST_OUTCOME: FetchOutcome = {
   url: "u", finalUrl: "u", httpStatus: 200, redirectCount: 0,
