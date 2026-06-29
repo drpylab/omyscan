@@ -1,0 +1,6 @@
+{
+  "name": "@omyscan/safety",
+  "version": "0.3.0-alpha.0",
+  "type": "module",
+  "main": "./src/index.ts"
+}
