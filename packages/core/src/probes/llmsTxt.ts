@@ -9,8 +9,13 @@ export const llmsTxtProbe: IProbe = {
   async run(ctx: ProbeContext) {
     const url = `${ctx.origin}/llms.txt`;
     const o = await ctx.fetch(url, "text/plain");
+    const ok2xx = o.httpStatus >= 200 && o.httpStatus < 300;
     let verdict: Verdict;
-    if (!o.contentTypeMatch || o.body == null) verdict = "unverified";
+    if (!o.contentTypeMatch || !ok2xx) verdict = "unverified";
+    // Large llms.txt (Stripe 93KB, n8n 268KB) trips the 64 KiB cap → body is
+    // truncated/null, but a 2xx + text/plain match already proves PRESENCE.
+    else if (o.oversize) verdict = "detected";
+    else if (o.body == null) verdict = "unverified";
     else if (o.body.length > 200) verdict = "detected";
     else verdict = "not-detected";
     const sig: Signal = {
