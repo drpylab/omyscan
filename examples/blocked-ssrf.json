@@ -1,0 +1,6 @@
+{
+    "status": "blocked",
+    "error": "blocked_by_ssrf_guard",
+    "message": "This target is not allowed for hosted scanning.",
+    "reason": "private_or_reserved_target"
+}

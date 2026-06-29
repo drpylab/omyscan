@@ -1,33 +1,33 @@
 # omyscan
 
-**Agent-ready is not the same as agent-safe.**
+**See your product through an AI agent's eyes.**
 
-omyscan is an open-source, passive **Agent Surface Mapper**: give it a URL and it
-maps what surface a site exposes to AI agents — documentation maps, AI bot policy,
-public API/OpenAPI, OAuth discovery metadata, and MCP/agent manifests — then
-classifies the discoverable action surface (read / write / delete / upload / …).
+omyscan maps what AI agents can read, discover and attempt to use:
+llms.txt, AI bot policies, MCP manifests, OpenAPI/OAuth metadata and action surfaces.
 
-It is **not** a web-security scanner. It makes no vulnerability claims and assigns
-no score. It reports *agent-facing surface signals* so you can review them before
-exposing a surface to autonomous agent workflows.
+Passive. Evidence-based. No vulnerability claims.
 
-## What it checks
+---
 
-| Signal | Meaning |
-|--------|---------|
-| `llms.txt` | machine-readable docs map for agents |
-| AI bot policy | whether robots.txt declares rules for AI crawlers (gap = none) |
-| OpenAPI / Swagger | public machine-readable API documentation |
-| OAuth discovery | machine-readable auth boundary metadata |
-| MCP / agent manifest | advertised agent tools / connection endpoints |
-| Action surface | read / write / update / delete / upload / payment / send_message / auth_token / admin_role |
+## What it detects
 
-## Quick start
+- llms.txt
+- AI bot policy gaps
+- MCP manifests
+- OpenAPI discovery
+- OAuth discovery
+- action surface classification (read / write / update / delete / upload / payment / send_message / auth_token / admin_role)
+- governance / policy signals
+
+## Hosted demo
 
 ```bash
 npm install
-npx tsx apps/cli/src/main.ts scan https://example.com
+npx tsx apps/api/src/server.ts        # → http://localhost:8787
 ```
+
+Open the URL, paste a public product URL, and get a one-screen Agent Surface Map
+with a free preview and a locked-findings Extended Report CTA.
 
 ## CLI usage
 
@@ -36,66 +36,68 @@ omyscan scan https://example.com          # human-readable Agent Surface Map
 omyscan scan https://example.com --json   # full machine-readable result
 ```
 
-Example:
+## Safety model
+
+omyscan performs passive checks only:
+
+- GET/HEAD only
+- allowlisted paths only
+- no fuzzing
+- no exploitation
+- no authentication bypass
+- no crawling
+- SSRF guarded in hosted mode
+
+See [SAFETY.md](./SAFETY.md) for the full model.
+
+## Example output
 
 ```
-omyscan — Agent Surface Map for https://example.com
+omyscan — Agent Surface Map for https://docs.langchain.com
 
 Agent-facing signals:
   • [detected] agent-facing surface detected (llms.txt present)  — .../llms.txt (200, text/plain)
   • [not-detected] AI bot policy gap  — .../robots.txt (200, text/plain)
-  • [detected] OpenAPI surface detected  — .../openapi.json (200, application/json)
-
-Action surface:
-  • read: possible
-  • write: possible
-  • delete: possible
+  • [detected] agent/MCP manifest detected (possible action surface)  — .../.well-known/mcp.json (200, application/json)
 ```
 
-## JSON output
+Full machine-readable samples: [`examples/`](./examples) — including a free preview
+response and an SSRF-blocked response. Every signal follows the **Evidence Contract**
+(`verdict` + `evidence`: url, status, content-type expected vs actual, bytes, snippet).
 
-Every signal follows the **Evidence Contract**: `verdict` (`detected` / `not-detected`
-/ `unverified`) plus `evidence` (url, http status, content-type expected vs actual,
-content-type match, bytes, snippet, timestamp). Output is deterministic.
+## Free vs Extended report
 
-## Safe scanning policy
+**Free preview:**
+- total findings count
+- top visible findings
+- category summary
+- locked findings count
 
-omyscan is **passive**. It enforces, on every request:
+**Extended Report:**
+- all findings
+- full evidence
+- risk stories
+- prioritized fix plan
+- copy-paste recommendations
 
-- **GET/HEAD only** — never POST/PUT/DELETE
-- **content-type pinning** — a body is parsed only when its content-type matches
-  (a soft-404 / SPA catch-all that returns `200 + text/html` is never a detection)
-- **max response size 64 KiB**, **5 s timeout**, **≤3 redirects**
-- **allowlisted paths only** — no brute force, no aggressive enumeration
-
-omyscan performs passive checks only. It does not fuzz, exploit, brute-force, bypass
-authentication, or claim that a website is vulnerable. Findings are exposure signals
-intended for review.
-
-## Hosted scanning safety
-
-The hosted API (`POST /api/scan`) adds an **SSRF guard**: hosted scanning is limited to
-public web targets. Internal, private, reserved, link-local and cloud-metadata
-addresses are blocked — for the initial URL **and every redirect target**. Only
-`http`/`https` schemes are allowed; userinfo (`user:pass@`) is rejected. Requests are
-rate-limited per IP. Users cannot supply custom paths, headers, cookies or auth.
+## Development
 
 ```bash
-# run the hosted demo (API + one-screen web UI)
-npx tsx apps/api/src/server.ts          # → http://localhost:8787
+npm install
+npm test          # 112 tests
+npm run build     # typecheck all packages
 ```
 
-## Limitations
-
-- Passive: confirms *presence* of a surface, not its exploitability or runtime behavior.
-- Sees only public, server-rendered responses; JS-rendered and auth-walled surfaces are out of scope.
-- OpenAPI discovery checks a small allowlist of well-known paths, not arbitrary locations.
+Monorepo: `packages/core` (scanner + probes), `packages/safety` (SSRF guard),
+`packages/preview` (findings + free/locked split), `packages/knowledge-base`
+(interpretations + risk stories), `apps/cli`, `apps/api`, `apps/web`.
 
 ## Roadmap
 
 - v0.1.0-alpha — llms.txt, AI bot policy, MCP manifest, CLI
 - v0.2.0-alpha — OpenAPI + OAuth discovery + action classification + knowledge-base
-- **v0.3.0-alpha — hosted web/API + SSRF guard + free/paid preview model**
+- v0.3.0-alpha — hosted web/API + SSRF guard + free/paid preview model
+- **v0.3.1-alpha — launch-readiness polish (early-access modal, analytics, docs)**
 - next — $5 Extended report payment, risk-story interpretation
 
 ## License
