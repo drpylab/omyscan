@@ -4,157 +4,278 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>omyscan — Agent Surface Mapper</title>
+<meta name="description" content="See your product through an AI agent's eyes. omyscan passively maps llms.txt, AI bot policy, MCP, OpenAPI/OAuth and action surfaces." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Open+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --bg: #f7f9fc; --ink: #16203a; --muted: #6b7892; --line: #e6ebf3;
-    --card: #ffffff; --accent: #4f6bff; --accent-soft: #eef1ff;
-    --green: #1f9d72; --green-soft: #e7f6f0; --amber: #b9791d; --amber-soft: #fbf1e0;
-    --gray: #8893a7; --gray-soft: #eef1f6; --violet: #6b5bd2; --violet-soft: #efecfb;
-    --navy: #2a3656; --shadow: 0 1px 2px rgba(20,30,60,.04), 0 8px 24px rgba(20,30,60,.06);
+    --bg: #f6f8fc; --ink: #14203c; --navy: #2a3656; --muted: #64718c; --line: #e7ecf5;
+    --card: #ffffff; --accent: #4f6bff; --accent-d: #3a52e6; --accent-soft: #eef1ff;
+    --green: #138a63; --green-soft: #e6f6ef; --amber: #a86a12; --amber-soft: #faf0dd;
+    --gray: #7c879d; --gray-soft: #eef1f6; --violet: #5d4fc9; --violet-soft: #eeeafb;
+    --ring: 0 0 0 3px rgba(79,107,255,.35);
+    --shadow-sm: 0 1px 2px rgba(20,30,60,.05);
+    --shadow: 0 1px 2px rgba(20,30,60,.04), 0 10px 30px rgba(20,30,60,.07);
+    --r: 16px;
   }
   * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
-    margin: 0; font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
-    color: var(--ink);
-    background: radial-gradient(1200px 600px at 50% -10%, #eef2fb 0%, var(--bg) 60%);
+    margin: 0; color: var(--ink); font-family: "Open Sans", system-ui, sans-serif;
+    font-size: 16px; line-height: 1.55;
+    background:
+      radial-gradient(900px 500px at 50% -8%, #e9eefb 0%, rgba(233,238,251,0) 70%),
+      linear-gradient(180deg, #fbfcfe 0%, var(--bg) 100%);
     min-height: 100vh;
   }
-  .wrap { max-width: 880px; margin: 0 auto; padding: 22px 20px 40px; }
+  h1, h2, h3, .logo { font-family: "Poppins", system-ui, sans-serif; }
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 20px 20px 48px; }
+  a { color: inherit; }
+  svg { display: block; }
+
   header { display: flex; align-items: center; justify-content: space-between; }
-  .logo { font-weight: 700; letter-spacing: -.2px; }
-  .logo b { color: var(--accent); }
-  nav a { color: var(--muted); text-decoration: none; margin-left: 16px; font-size: 13px; }
-  nav a:hover { color: var(--ink); }
-  .hero { text-align: center; padding: 40px 0 18px; }
-  h1 { font-size: 30px; line-height: 1.15; margin: 0 0 12px; letter-spacing: -.5px; }
-  .sub { color: var(--muted); max-width: 620px; margin: 0 auto 10px; }
-  .safety { color: var(--muted); font-size: 12.5px; }
-  form { display: flex; gap: 10px; max-width: 640px; margin: 22px auto 6px; }
-  input[type=url] {
-    flex: 1; padding: 13px 15px; border: 1px solid var(--line); border-radius: 12px;
-    font-size: 15px; background: #fff; color: var(--ink); box-shadow: var(--shadow);
+  .logo { font-weight: 700; font-size: 19px; letter-spacing: -.3px; display: flex; align-items: center; gap: 9px; }
+  .logo .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .logo b { color: var(--accent); font-weight: 700; }
+  nav { display: flex; align-items: center; gap: 4px; }
+  nav a { color: var(--muted); text-decoration: none; font-size: 13.5px; font-weight: 600; padding: 8px 10px; border-radius: 9px; display: inline-flex; align-items: center; gap: 6px; transition: color .2s, background .2s; }
+  nav a:hover { color: var(--ink); background: rgba(20,30,60,.04); }
+  nav a:focus-visible { outline: none; box-shadow: var(--ring); }
+
+  .hero { text-align: center; padding: 46px 0 8px; }
+  h1 { font-size: clamp(26px, 4.5vw, 36px); line-height: 1.12; margin: 0 0 14px; letter-spacing: -.6px; }
+  .sub { color: var(--muted); max-width: 600px; margin: 0 auto 14px; font-size: 16px; }
+  .safety { color: var(--muted); font-size: 13px; display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .safety .badge { display: inline-flex; align-items: center; gap: 5px; }
+
+  form { display: flex; gap: 10px; max-width: 640px; margin: 26px auto 8px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+  .field { flex: 1; display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--line); border-radius: 13px; padding: 0 14px; box-shadow: var(--shadow-sm); transition: border-color .2s, box-shadow .2s; }
+  .field:focus-within { border-color: var(--accent); box-shadow: var(--ring); }
+  .field svg { color: var(--muted); flex: none; }
+  input[type=url] { flex: 1; border: 0; outline: none; padding: 14px 0; font-size: 15px; color: var(--ink); background: transparent; font-family: "JetBrains Mono", monospace; }
+  input[type=url]::placeholder { color: #aab3c6; }
+  button.primary {
+    display: inline-flex; align-items: center; gap: 8px; padding: 14px 20px; border: 0; border-radius: 13px;
+    background: var(--accent); color: #fff; font-weight: 600; font-size: 15px; cursor: pointer;
+    box-shadow: var(--shadow-sm); transition: background .2s, transform .05s; font-family: "Poppins", sans-serif;
   }
-  input[type=url]:focus { outline: none; border-color: var(--accent); }
-  button {
-    padding: 13px 20px; border: 0; border-radius: 12px; background: var(--accent);
-    color: #fff; font-weight: 600; font-size: 15px; cursor: pointer; box-shadow: var(--shadow);
-  }
-  button:disabled { opacity: .55; cursor: default; }
-  .status { text-align: center; min-height: 20px; color: var(--muted); font-size: 13px; margin: 4px 0 18px; }
+  button.primary:hover { background: var(--accent-d); }
+  button.primary:active { transform: translateY(1px); }
+  button.primary:focus-visible { outline: none; box-shadow: var(--ring); }
+  button.primary:disabled { opacity: .6; cursor: default; }
+  .spin { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .status { text-align: center; min-height: 20px; color: var(--muted); font-size: 13px; margin: 6px 0 20px; }
+
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid + .grid { margin-top: 16px; }
   @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } form { flex-direction: column; } }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); }
-  .card h3 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); }
-  .row { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-top: 1px solid var(--line); }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 18px 8px; box-shadow: var(--shadow); }
+  .card h3 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .card h3 svg { color: var(--accent); }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 0; border-top: 1px solid var(--line); }
   .row:first-of-type { border-top: 0; }
-  .row .name { color: var(--navy); }
-  .chip { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+  .row .name { color: var(--navy); font-size: 14.5px; font-weight: 500; }
+  .row .url { display: block; color: var(--muted); font-size: 11.5px; margin-top: 2px; }
+
+  .chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+  .chip svg { width: 13px; height: 13px; }
   .c-detected, .c-possible { color: var(--green); background: var(--green-soft); }
   .c-gap { color: var(--amber); background: var(--amber-soft); }
-  .c-not_detected, .c-not.detected { color: var(--gray); background: var(--gray-soft); }
+  .c-not_detected { color: var(--gray); background: var(--gray-soft); }
   .c-unverified { color: var(--violet); background: var(--violet-soft); }
-  .means { color: var(--navy); font-size: 14px; line-height: 1.55; }
-  .means .tag { color: var(--muted); font-size: 12.5px; margin-top: 8px; }
-  .unlock { background: linear-gradient(180deg, #fff, #fbfcff); border: 1px solid var(--line); }
-  .unlock .count { font-size: 22px; font-weight: 700; }
+
+  .means { color: var(--navy); font-size: 14.5px; line-height: 1.6; padding-bottom: 10px; }
+  .means .tag { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12.5px; margin-top: 10px; }
+
+  .unlock { background: linear-gradient(180deg, #fff, #fafbff); display: flex; flex-direction: column; }
+  .unlock .count { font-family: "Poppins", sans-serif; font-size: 22px; font-weight: 700; letter-spacing: -.4px; }
   .unlock .meta { color: var(--muted); font-size: 13px; margin: 4px 0 14px; }
-  .unlock button { width: 100%; }
-  .err { color: #9a3b2f; background: #fbeceA; border: 1px solid #f3d6cf; padding: 12px 14px; border-radius: 12px; text-align: center; }
-  footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 28px; }
+  .unlock .cats { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .unlock .cat { font-size: 11px; color: var(--navy); background: var(--gray-soft); border-radius: 7px; padding: 3px 8px; }
+  .unlock button { margin-top: auto; width: 100%; padding: 13px; border: 0; border-radius: 12px; background: var(--ink); color: #fff; font-weight: 600; font-size: 14.5px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: "Poppins", sans-serif; transition: background .2s; }
+  .unlock button:hover { background: #0d1730; }
+  .unlock button:focus-visible { outline: none; box-shadow: var(--ring); }
+  .unlock .note { color: var(--muted); font-size: 11px; text-align: center; margin: 8px 0 4px; }
+
+  .err { display: flex; align-items: center; gap: 10px; justify-content: center; color: #8a3b2f; background: #fdeee9; border: 1px solid #f4d7cf; padding: 13px 16px; border-radius: 12px; font-size: 14px; }
+
+  /* skeleton loading */
+  .sk { background: linear-gradient(90deg, #eef1f7 25%, #f6f8fc 37%, #eef1f7 63%); background-size: 400% 100%; animation: shimmer 1.3s infinite; border-radius: 7px; }
+  .sk.line { height: 13px; margin: 13px 0; }
+  .sk.w60 { width: 60%; } .sk.w40 { width: 40%; } .sk.w80 { width: 80%; }
+  @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+
+  footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 32px; display: flex; align-items: center; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  footer .sep { opacity: .5; }
   .hidden { display: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="logo">omy<b>scan</b></div>
-    <nav><a href="https://github.com">GitHub</a><a href="#">CLI</a><a href="#">Docs</a></nav>
+    <div class="logo"><span class="dot" aria-hidden="true"></span>omy<b>scan</b></div>
+    <nav aria-label="Primary">
+      <a href="https://github.com" aria-label="GitHub repository">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2A10 10 0 0 0 8.84 21.5c.5.09.66-.22.66-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.1-1.47-1.1-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.74c0 .27.16.58.67.48A10 10 0 0 0 12 2Z"/></svg>
+        GitHub</a>
+      <a href="#cli">CLI</a>
+      <a href="#docs">Docs</a>
+    </nav>
   </header>
 
   <section class="hero">
     <h1>See your product through an AI agent's eyes.</h1>
-    <p class="sub">omyscan maps what AI agents can read, discover and attempt to use:
-      llms.txt, AI bot policies, MCP manifests, OpenAPI/OAuth metadata and action surfaces.</p>
-    <p class="safety">Passive scan only · GET/HEAD requests · No brute force · No auth bypass</p>
-    <form id="f">
-      <input id="url" type="url" placeholder="https://your-product.com" required />
-      <button id="go" type="submit">Scan surface</button>
+    <p class="sub">omyscan maps what AI agents can read, discover and attempt to use — llms.txt, AI bot policies, MCP manifests, OpenAPI/OAuth metadata and action surfaces.</p>
+    <p class="safety">
+      <span class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>Passive scan only</span>
+      <span class="sep">·</span> GET/HEAD requests <span class="sep">·</span> No brute force <span class="sep">·</span> No auth bypass
+    </p>
+
+    <form id="f" novalidate>
+      <label class="sr-only" for="url">Website URL to scan</label>
+      <div class="field">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="url" name="url" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://your-product.com" required />
+      </div>
+      <button class="primary" id="go" type="submit">
+        <svg id="goicon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M12 7v5l3 2"/></svg>
+        <span id="golabel">Scan surface</span>
+      </button>
     </form>
-    <div class="status" id="status"></div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
   </section>
 
-  <div id="err" class="err hidden"></div>
+  <div id="err" class="err hidden" role="alert">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+    <span id="errmsg"></span>
+  </div>
 
-  <section id="result" class="hidden">
+  <section id="result" class="hidden" aria-live="polite">
     <div class="grid">
-      <div class="card"><h3>Agent-facing signals</h3><div id="signals"></div></div>
-      <div class="card"><h3>Action surface</h3><div id="actions"></div></div>
+      <div class="card">
+        <h3><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7 19.4l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></svg>Agent-facing signals</h3>
+        <div id="signals"></div>
+      </div>
+      <div class="card">
+        <h3><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>Action surface</h3>
+        <div id="actions"></div>
+      </div>
     </div>
-    <div class="grid" style="margin-top:16px">
-      <div class="card"><h3>What this means</h3><div class="means" id="means"></div></div>
+    <div class="grid">
+      <div class="card">
+        <h3><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>What this means</h3>
+        <div class="means" id="means"></div>
+      </div>
       <div class="card unlock">
-        <h3>Extended report</h3>
+        <h3><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Extended report</h3>
         <div class="count" id="locktotal"></div>
         <div class="meta" id="lockmeta"></div>
-        <button id="cta" disabled></button>
+        <div class="cats" id="lockcats"></div>
+        <button id="cta" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span id="ctalabel"></span>
+        </button>
+        <div class="note">Preview · payment not enabled in this demo</div>
       </div>
     </div>
   </section>
 
-  <footer>Open-source · Passive GET/HEAD only · SSRF guarded · No fuzzing · No vulnerability claims</footer>
+  <footer>
+    <span>Open-source</span><span class="sep">·</span><span>Passive GET/HEAD only</span><span class="sep">·</span>
+    <span>SSRF guarded</span><span class="sep">·</span><span>No fuzzing</span><span class="sep">·</span><span>No vulnerability claims</span>
+  </footer>
 </div>
 
 <script>
 const $ = (id) => document.getElementById(id);
-const chip = (status) => `<span class="chip c-${status}">${status.replace('_',' ')}</span>`;
+const ICON = {
+  detected: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>',
+  possible: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>',
+  gap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>',
+  not_detected: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/></svg>',
+  unverified: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 17h.01"/><path d="M12 13a2 2 0 1 0-2-2"/></svg>',
+};
+const chip = (s) => `<span class="chip c-${s}">${ICON[s] || ''}${s.replace('_',' ')}</span>`;
+
+const SKELETON = `
+  <div class="grid">
+    <div class="card"><div class="sk line w40"></div><div class="sk line w80"></div><div class="sk line w60"></div><div class="sk line w80"></div></div>
+    <div class="card"><div class="sk line w40"></div><div class="sk line w60"></div><div class="sk line w80"></div><div class="sk line w60"></div></div>
+  </div>`;
+
+function setLoading(on) {
+  $("go").disabled = on;
+  $("goicon").classList.toggle("spin", on);
+  $("golabel").textContent = on ? "Scanning…" : "Scan surface";
+  $("status").textContent = on ? "Mapping agent-facing surface — passive GET/HEAD only…" : "";
+}
 
 $("f").addEventListener("submit", async (e) => {
   e.preventDefault();
   const url = $("url").value.trim();
-  $("err").classList.add("hidden"); $("result").classList.add("hidden");
-  $("go").disabled = true; $("status").textContent = "Scanning surface…";
+  if (!url) return;
+  $("err").classList.add("hidden");
+  $("result").classList.remove("hidden");
+  $("result").innerHTML = SKELETON;
+  setLoading(true);
   try {
-    const res = await fetch("/api/scan", {
-      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url }),
-    });
+    const res = await fetch("/api/scan", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url }) });
     const d = await res.json();
     if (d.error === "blocked_by_ssrf_guard") return fail("This target is not allowed for hosted scanning.");
-    if (d.error === "rate_limited") return fail("Too many scan requests. Please try again later.");
-    if (d.status !== "completed") return fail("The scan could not be completed.");
+    if (d.error === "rate_limited") return fail("Too many scan requests. Please try again in a moment.");
+    if (d.status !== "completed") return fail("The scan could not be completed. Please try another URL.");
     render(d);
   } catch (_) { fail("Network error. Please try again."); }
-  finally { $("go").disabled = false; $("status").textContent = ""; }
+  finally { setLoading(false); }
 });
 
-function fail(msg) { $("err").textContent = msg; $("err").classList.remove("hidden"); }
+function fail(msg) {
+  $("result").classList.add("hidden");
+  $("errmsg").textContent = msg;
+  $("err").classList.remove("hidden");
+}
 
 function render(d) {
+  $("result").innerHTML = RESULT_TEMPLATE;
   const vis = d.visible_findings || [];
-  const sig = vis.filter(f => f.category !== "action_surface");
-  const act = vis.filter(f => f.category === "action_surface");
-  const statusOf = (f) => f.status;
+  const sig = vis.filter((f) => f.category !== "action_surface");
+  const act = vis.filter((f) => f.category === "action_surface");
 
-  $("signals").innerHTML = sig.length ? sig.map(f =>
-    `<div class="row"><span class="name">${f.title}</span>${chip(statusOf(f))}</div>`).join("")
+  $("signals").innerHTML = sig.length
+    ? sig.map((f) => `<div class="row"><span><span class="name">${esc(f.title)}</span><span class="url mono">${esc(f.source_url || "")}</span></span>${chip(f.status)}</div>`).join("")
     : `<div class="row"><span class="name">No agent-facing signals in preview</span></div>`;
 
-  $("actions").innerHTML = act.length ? act.map(f =>
-    `<div class="row"><span class="name">${f.title.replace(/-like operations possible$/,'')}</span>${chip(f.status)}</div>`).join("")
-    : `<div class="row"><span class="name">Action surface: ${d.summary.action_surface.replace('_',' ')}</span></div>`;
+  $("actions").innerHTML = act.length
+    ? act.map((f) => `<div class="row"><span class="name">${esc(f.title.replace(/-like operations possible$/, "").replace(/ operations possible$/, ""))}</span>${chip(f.status)}</div>`).join("")
+    : `<div class="row"><span class="name">Action surface: ${esc(d.summary.action_surface.replace("_", " "))}</span></div>`;
 
   const s = d.summary;
-  let means = "";
-  if (s.agent_surface === "detected") means += "Public machine-readable agent-facing surface was detected. ";
-  if (s.action_surface === "possible") means += "AI agents may be able to discover documented actions before they are intentionally exposed to agent workflows. ";
-  if (s.governance_gap === "detected") means += "No AI-specific crawler policy was found. ";
-  if (!means) means = "No notable agent-facing surface detected in this preview. ";
-  $("means").innerHTML = `${means}<div class="tag">This is an exposure signal, not a vulnerability claim.</div>`;
+  let m = "";
+  if (s.agent_surface === "detected") m += "Public machine-readable agent-facing surface was detected. ";
+  if (s.action_surface === "possible") m += "AI agents may be able to discover documented actions before they are intentionally exposed to agent workflows. ";
+  if (s.governance_gap === "detected") m += "No AI-specific crawler policy was found. ";
+  if (!m) m = "No notable agent-facing surface was detected in this preview. ";
+  $("means").innerHTML = `${m}<div class="tag"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>This is an exposure signal, not a vulnerability claim.</div>`;
 
   $("locktotal").textContent = `${s.total_findings} agent-facing signals found`;
   $("lockmeta").textContent = `${s.visible_findings} shown · ${s.locked_findings} locked`;
-  $("cta").textContent = d.cta.label;
-  $("result").classList.remove("hidden");
+  $("lockcats").innerHTML = (d.locked_preview.categories || []).map((c) => `<span class="cat">${esc(c.replace(/_/g, " "))}</span>`).join("");
+  $("ctalabel").textContent = d.cta.label;
 }
+
+function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+const RESULT_TEMPLATE = document.getElementById("result").innerHTML;
 </script>
 </body>
 </html>
