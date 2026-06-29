@@ -21,6 +21,10 @@ Passive. Evidence-based. No vulnerability claims.
 
 ## Hosted demo
 
+Public hosted demo URL: coming soon.
+
+## Local hosted demo
+
 ```bash
 npm install
 npx tsx apps/api/src/server.ts        # → http://localhost:8787
