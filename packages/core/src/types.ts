@@ -5,7 +5,8 @@ export type ProbeCategory =
   | "ai-bot-policy"
   | "mcp-manifest"
   | "oauth"
-  | "openapi";
+  | "openapi"
+  | "action-surface";
 
 export interface Evidence {
   probeId: string;
@@ -27,7 +28,12 @@ export interface Signal {
   verdict: Verdict;
   evidence: Evidence;
   interpretationKey?: string;
+  label?: string; // e.g. action class name for "action-surface" signals
 }
+
+export type ActionClass =
+  | "read" | "write" | "update" | "delete" | "upload"
+  | "payment" | "send_message" | "auth_token" | "admin_role" | "unknown";
 
 export interface ProbeResult {
   signals: Signal[];
