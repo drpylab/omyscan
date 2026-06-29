@@ -1,0 +1,7 @@
+{
+  "story_id": "agent_discovers_write_actions",
+  "title": "Agent-discoverable write actions",
+  "condition": ["openapi_surface_detected", "write_actions_possible"],
+  "claim_type": "exposure_scenario",
+  "text": "An AI agent may discover documented actions that create, update or delete resources. This does not mean the API is at fault, but it should be reviewed before being exposed to autonomous agent workflows."
+}
