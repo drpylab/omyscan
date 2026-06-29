@@ -1,0 +1,7 @@
+{
+  "signal_id": "mcp_manifest_detected",
+  "free_interpretation": "A machine-readable agent/MCP manifest was detected.",
+  "extended_interpretation": "Agent runtimes may use this manifest to discover callable tools and connection endpoints. Review which tools are advertised and whether they should be reachable by autonomous agents.",
+  "safe_language": ["agent-facing surface detected", "possible action surface", "recommended review"],
+  "forbidden_language": ["vulnerability", "security score", "exploit", "critical risk"]
+}

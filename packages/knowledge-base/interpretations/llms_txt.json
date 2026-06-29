@@ -1,0 +1,7 @@
+{
+  "signal_id": "llms_txt_detected",
+  "free_interpretation": "An llms.txt agent map was detected.",
+  "extended_interpretation": "AI agents and automation tools may use this file as a curated map of your documentation. Review which pages it exposes and whether it embeds instructions intended for agents.",
+  "safe_language": ["agent-facing surface detected", "agent-readable map", "recommended review"],
+  "forbidden_language": ["vulnerability", "security score", "exploit", "critical risk"]
+}

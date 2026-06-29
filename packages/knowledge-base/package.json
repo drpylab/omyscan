@@ -1,0 +1,9 @@
+{
+  "name": "@omyscan/knowledge-base",
+  "version": "0.2.0-alpha.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "dependencies": {
+    "@omyscan/core": "*"
+  }
+}

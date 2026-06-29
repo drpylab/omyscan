@@ -1,0 +1,7 @@
+{
+  "signal_id": "ai_bot_policy_gap",
+  "free_interpretation": "No AI-specific bot policy was found in robots.txt.",
+  "extended_interpretation": "The site does not declare rules for AI crawlers, training or summarization agents. Consider whether an explicit AI bot policy should be added to govern automated access.",
+  "safe_language": ["AI bot policy gap", "governance gap", "recommended review"],
+  "forbidden_language": ["vulnerability", "security score", "exploit", "critical risk"]
+}

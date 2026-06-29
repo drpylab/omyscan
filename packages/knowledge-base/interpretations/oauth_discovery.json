@@ -1,0 +1,7 @@
+{
+  "signal_id": "oauth_discovery_detected",
+  "free_interpretation": "Machine-readable auth boundary metadata was detected.",
+  "extended_interpretation": "OAuth/OpenID discovery metadata describes how clients obtain tokens and which scopes exist. Review the advertised scopes and grant types so the permission boundary is intentional for agent integrations.",
+  "safe_language": ["auth boundary metadata detected", "machine-readable auth boundary", "recommended review"],
+  "forbidden_language": ["vulnerability", "security score", "exploit", "critical risk"]
+}

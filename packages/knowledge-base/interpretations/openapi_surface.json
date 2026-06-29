@@ -1,0 +1,7 @@
+{
+  "signal_id": "openapi_surface_detected",
+  "free_interpretation": "Public machine-readable API documentation was detected.",
+  "extended_interpretation": "AI agents and automation tools may use this documentation to discover callable actions. Review write, update, delete, upload and payment operations before exposing this surface to agent workflows.",
+  "safe_language": ["agent-facing surface detected", "possible action surface", "recommended review"],
+  "forbidden_language": ["vulnerability", "security score", "exploit", "critical risk"]
+}
