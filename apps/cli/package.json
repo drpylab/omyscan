@@ -1,0 +1,9 @@
+{
+  "name": "@aiscanner/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": { "aiscanner": "./src/main.ts" },
+  "dependencies": {
+    "@aiscanner/core": "*"
+  }
+}
