@@ -1,7 +1,10 @@
-import { expect, test } from "vitest";
+import { beforeAll, expect, test } from "vitest";
 import { SsrfBlockedError, type ScanResult } from "@omyscan/core";
 import { handleScan } from "../handler.js";
 import { createRateLimiter } from "../rateLimit.js";
+import { setSink } from "../analytics.js";
+
+beforeAll(() => setSink(() => {})); // silence analytics during tests
 
 function ev(url: string) {
   return { probeId: "p", url, method: "GET" as const, httpStatus: 200, finalUrl: url, redirectCount: 0, contentTypeExpected: "x", contentTypeActual: "x", contentTypeMatch: true, bytes: 1, fetchedAt: "t" };

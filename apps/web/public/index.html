@@ -111,6 +111,16 @@
   .sk.w60 { width: 60%; } .sk.w40 { width: 40%; } .sk.w80 { width: 80%; }
   @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 
+  .overlay { position: fixed; inset: 0; background: rgba(20,30,60,.42); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 50; }
+  .modal { position: relative; background: #fff; border-radius: 18px; box-shadow: 0 24px 60px rgba(20,30,60,.25); max-width: 420px; width: 100%; padding: 26px 24px; }
+  .modal h2 { font-size: 19px; margin: 0 0 10px; letter-spacing: -.3px; }
+  .modal-text { color: var(--navy); font-size: 14px; margin: 0 0 10px; }
+  .modal-note { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
+  .modal-x { position: absolute; top: 14px; right: 14px; background: none; border: 0; color: var(--muted); cursor: pointer; padding: 6px; border-radius: 8px; }
+  .modal-x:hover { background: var(--gray-soft); color: var(--ink); }
+  .modal-x:focus-visible { outline: none; box-shadow: var(--ring); }
+  #email { font-family: "Open Sans", sans-serif; }
+  .ea-done { display: flex; align-items: center; gap: 10px; color: var(--green); background: var(--green-soft); border-radius: 12px; padding: 14px 16px; font-size: 14px; font-weight: 500; }
   footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 32px; display: flex; align-items: center; gap: 8px; justify-content: center; flex-wrap: wrap; }
   footer .sep { opacity: .5; }
   .hidden { display: none; }
@@ -196,6 +206,29 @@
   </footer>
 </div>
 
+<div id="overlay" class="overlay hidden" tabindex="-1">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle">
+    <button class="modal-x" id="mclose" aria-label="Close dialog">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <h2 id="mtitle">Unlock Extended Report</h2>
+    <p class="modal-text">The Extended Report includes all locked findings, full evidence, risk stories, a prioritized fix plan, and copy-paste policy recommendations.</p>
+    <p class="modal-note">Payments are not enabled in this alpha yet. Leave your email and we'll send early access.</p>
+    <form id="eaform">
+      <label class="sr-only" for="email">Email address</label>
+      <div class="field">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+        <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required />
+      </div>
+      <button class="primary" id="easubmit" type="submit" style="width:100%;justify-content:center;margin-top:12px">Request early access</button>
+    </form>
+    <div id="eadone" class="ea-done hidden">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+      <span>Thanks — you're on the early access list.</span>
+    </div>
+  </div>
+</div>
+
 <script>
 const $ = (id) => document.getElementById(id);
 const ICON = {
@@ -271,7 +304,51 @@ function render(d) {
   $("lockmeta").textContent = `${s.visible_findings} shown · ${s.locked_findings} locked`;
   $("lockcats").innerHTML = (d.locked_preview.categories || []).map((c) => `<span class="cat">${esc(c.replace(/_/g, " "))}</span>`).join("");
   $("ctalabel").textContent = d.cta.label;
+
+  lastScan = { target: d.target, total: s.total_findings, locked: s.locked_findings };
+  $("cta").addEventListener("click", openUnlock);
 }
+
+let lastScan = null;
+let lastFocus = null;
+
+function beacon(event) {
+  try {
+    fetch("/api/event", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ event, target: lastScan?.target, total_findings: lastScan?.total, locked_findings: lastScan?.locked }), keepalive: true });
+  } catch (_) {}
+}
+
+function openUnlock() {
+  beacon("unlock_clicked");
+  $("eadone").classList.add("hidden");
+  $("eaform").classList.remove("hidden");
+  $("email").value = "";
+  lastFocus = document.activeElement;
+  $("overlay").classList.remove("hidden");
+  $("email").focus();
+}
+function closeUnlock() {
+  $("overlay").classList.add("hidden");
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+$("mclose").addEventListener("click", closeUnlock);
+$("overlay").addEventListener("click", (e) => { if (e.target === $("overlay")) closeUnlock(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("overlay").classList.contains("hidden")) closeUnlock(); });
+
+$("eaform").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = $("email").value.trim();
+  if (!email) return;
+  $("easubmit").disabled = true;
+  try {
+    const res = await fetch("/api/early-access", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email, target: lastScan?.target, total_findings: lastScan?.total, locked_findings: lastScan?.locked }) });
+    const d = await res.json();
+    if (d.status === "ok") { $("eaform").classList.add("hidden"); $("eadone").classList.remove("hidden"); }
+  } catch (_) {}
+  finally { $("easubmit").disabled = false; }
+});
 
 function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 

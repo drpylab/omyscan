@@ -2,6 +2,7 @@ import { scan, createFetcher, SsrfBlockedError, assertLexicon, type ScanResult }
 import { guardUrl, type GuardResult, type Resolver } from "@omyscan/safety";
 import { splitFindings, applyPreviewPolicy, buildSummary, categoryCounts } from "@omyscan/preview";
 import { createRateLimiter, type RateLimiter } from "./rateLimit.js";
+import { emit, hostOf } from "./analytics.js";
 
 const SAFETY_NOTICE = "Passive scan only. GET/HEAD requests. No brute force. No auth bypass.";
 const BLOCK_MSG = "This target is not allowed for hosted scanning.";
@@ -38,14 +39,19 @@ function defaultRunScan(resolver?: Resolver) {
 }
 
 export async function handleScan(input: ScanInput, deps: HandlerDeps = {}): Promise<HandlerResult> {
+  const host = hostOf(input.url);
+  emit("scan_started", { target_host: host });
+
   const limiter = deps.limiter ?? sharedLimiter;
   if (!limiter.check(input.ip)) {
+    emit("scan_rate_limited", { target_host: host });
     return { status: 429, body: { error: "rate_limited", message: "Too many scan requests. Please try again later." } };
   }
 
   const guard = deps.guard ?? ((u: string) => guardUrl(u, deps.resolver));
   const g = await guard(input.url);
   if (!g.allowed) {
+    emit("scan_blocked_by_ssrf", { target_host: host });
     return { status: 403, body: { status: "blocked", error: "blocked_by_ssrf_guard", message: BLOCK_MSG, reason: g.reason ?? "blocked" } };
   }
 
@@ -55,8 +61,10 @@ export async function handleScan(input: ScanInput, deps: HandlerDeps = {}): Prom
     result = await runScan(input.url);
   } catch (e) {
     if (e instanceof SsrfBlockedError) {
+      emit("scan_blocked_by_ssrf", { target_host: host });
       return { status: 403, body: { status: "blocked", error: "blocked_by_ssrf_guard", message: BLOCK_MSG, reason: "redirect_to_private_target" } };
     }
+    emit("scan_failed", { target_host: host });
     return { status: 502, body: { status: "error", error: "scan_failed", message: "The scan could not be completed." } };
   }
 
@@ -71,6 +79,13 @@ export async function handleScan(input: ScanInput, deps: HandlerDeps = {}): Prom
   // Lexicon guard applies to OUR generated copy only (never to site-derived evidence snippets).
   const ourCopy = [ctaLabel, lockedMessage, SAFETY_NOTICE, ...split.visible.map((f) => `${f.title} ${f.free_text ?? ""}`)].join(" ");
   assertLexicon(ourCopy);
+
+  emit("scan_completed", {
+    target_host: host,
+    total_findings: summary.total_findings,
+    visible_findings: summary.visible_findings,
+    locked_findings: summary.locked_findings,
+  });
 
   return {
     status: 200,
