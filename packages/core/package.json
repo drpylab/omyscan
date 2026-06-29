@@ -1,0 +1,10 @@
+{
+  "name": "@aiscanner/core",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "dependencies": {
+    "undici": "^6.0.0",
+    "zod": "^3.23.0"
+  }
+}
