@@ -1,0 +1,13 @@
+{
+  "/.well-known/mcp.json": {
+    "url": "https://docs.langchain.com/.well-known/mcp.json",
+    "finalUrl": "https://docs.langchain.com/.well-known/mcp.json",
+    "httpStatus": 200,
+    "redirectCount": 0,
+    "contentTypeActual": "application/json",
+    "contentTypeMatch": true,
+    "bytes": 241,
+    "body": "{\"schemaVersion\":\"2025-06-18\",\"name\":\"langchain-docs\",\"transport\":\"sse\"}",
+    "oversize": false
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "/.well-known/mcp.json": {
+    "url": "https://docs.cursor.com/.well-known/mcp.json",
+    "finalUrl": "https://cursor.com/docs",
+    "httpStatus": 200,
+    "redirectCount": 1,
+    "contentTypeActual": "text/html",
+    "contentTypeMatch": false,
+    "bytes": 135552,
+    "body": null,
+    "oversize": false
+  },
+  "/.well-known/agent.json": {
+    "url": "https://docs.cursor.com/.well-known/agent.json",
+    "finalUrl": "https://cursor.com/docs",
+    "httpStatus": 200,
+    "redirectCount": 1,
+    "contentTypeActual": "text/html",
+    "contentTypeMatch": false,
+    "bytes": 135552,
+    "body": null,
+    "oversize": false
+  }
+}
